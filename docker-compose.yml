@@ -1,0 +1,79 @@
+---
+version: '2'
+services:
+  zookeeper-1:
+    image: confluentinc/cp-zookeeper:latest
+    restart: always
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: localhost:2888:3888
+    network_mode: host
+
+  kafka-1:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    network_mode: host
+    depends_on:
+      - zookeeper-1
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+
+  kafka-2:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    network_mode: host
+    depends_on:
+      - zookeeper-1
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9093
+
+  kafka-3:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    network_mode: host
+    depends_on:
+      - zookeeper-1
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9094
+
+  kafka-setup:
+    image: confluentinc/cp-kafka:latest
+    network_mode: host
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    command: "bash -c 'echo Waiting for Kafka to be ready... && \
+              cub kafka-ready -z localhost:2181 3 20 && \
+              kafka-topics --create --if-not-exists --zookeeper localhost:2181 --partitions 3 --replication-factor 2 --topic test'"
+
+  sample_producer:
+    image: python:3
+    restart: always
+    network_mode: host
+    depends_on:
+      - kafka-setup
+    volumes:
+      - $PWD/scripts:/scripts
+    command: "bash -c 'pip install kafka-python && python /scripts/producer.py'"
+
+  sample_consumer:
+    image: python:3
+    restart: always
+    network_mode: host
+    depends_on:
+      - kafka-setup
+    volumes:
+      - $PWD/scripts:/scripts
+    command: "bash -c 'pip install kafka-python && python /scripts/consumer.py'"
+
