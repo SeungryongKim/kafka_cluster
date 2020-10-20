@@ -12,7 +12,7 @@
 Producer, consumer 컨테이너에서는 kafka-python 라이브러리를 사용하는 파이썬 스크립트가 실행됩니다.  
 해당 스크립트들은 `scripts` 경로 아래에 저장되어 있습니다.
 
-## 실행 방법 (CentOS 8 기준)
+## 실행 방법 (CentOS 7 기준)
 
 1. Docker 설치
 
