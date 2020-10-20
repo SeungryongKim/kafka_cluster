@@ -10,7 +10,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
-      ZOOKEEPER_SERVERS: localhost:2888:3888
+      ZOOKEEPER_SERVERS: 192.168.1.56:2888:3888
     network_mode: host
 
   kafka-1:
@@ -21,8 +21,8 @@ services:
       - zookeeper-1
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ZOOKEEPER_CONNECT: 192.168.1.56:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.168.1.56:9092
 
   kafka-2:
     image: confluentinc/cp-kafka:latest
@@ -32,8 +32,8 @@ services:
       - zookeeper-1
     environment:
       KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9093
+      KAFKA_ZOOKEEPER_CONNECT: 192.168.1.56:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.168.1.56:9093
 
   kafka-3:
     image: confluentinc/cp-kafka:latest
@@ -43,8 +43,8 @@ services:
       - zookeeper-1
     environment:
       KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9094
+      KAFKA_ZOOKEEPER_CONNECT: 192.168.1.56:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.168.1.56:9094
 
   kafka-setup:
     image: confluentinc/cp-kafka:latest
@@ -54,8 +54,8 @@ services:
       - kafka-2
       - kafka-3
     command: "bash -c 'echo Waiting for Kafka to be ready... && \
-              cub kafka-ready -z localhost:2181 3 20 && \
-              kafka-topics --create --if-not-exists --zookeeper localhost:2181 --partitions 3 --replication-factor 2 --topic test'"
+              cub kafka-ready -z 192.168.1.56:2181 3 20 && \
+              kafka-topics --create --if-not-exists --zookeeper 192.168.1.56:2181 --partitions 3 --replication-factor 2 --topic test'"
 
   sample_producer:
     image: python:3
